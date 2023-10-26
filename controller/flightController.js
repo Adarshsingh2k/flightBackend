@@ -48,4 +48,23 @@ const searchLogo = (req, res) => {
   res.send({ logo: item.logo });
 };
 
-module.exports = { searchFlights, searchLogo };
+const iataCode = async (req, res) => {
+  const { page, subType, keyword } = req.query;
+
+  try {
+    // API call with params we requested from client app
+    const response = await amadeus.client.get("/v1/reference-data/locations", {
+      keyword,
+      subType,
+      "page[offset]": page * 10,
+    });
+
+    // Sending response for client
+    res.json(JSON.parse(response.body));
+  } catch (err) {
+    console.error("Error fetching IATA code:", err);
+    res.status(500).json({ message: "Internal server error" }); // You can adjust the error message based on the nature of the error.
+  }
+};
+
+module.exports = { searchFlights, searchLogo, iataCode };
